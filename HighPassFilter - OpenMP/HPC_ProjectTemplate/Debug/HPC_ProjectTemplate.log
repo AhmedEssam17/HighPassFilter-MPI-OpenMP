@@ -1,4 +1,4 @@
 ﻿  Source.cpp
-C:\Users\Lenovo\Desktop\HPC - OpenMP\HPC_ProjectTemplate\HPC_ProjectTemplate\Source.cpp(147,66): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
+E:\ASU\Semester 10\HPC\Project\HighPassFilter - OpenMP\HPC_ProjectTemplate\Source.cpp(198,66): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
   Source.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
-  HPC_ProjectTemplate.vcxproj -> C:\Users\Lenovo\Desktop\HPC - OpenMP\HPC_ProjectTemplate\Debug\HPC_ProjectTemplate.exe
+  HPC_ProjectTemplate.vcxproj -> E:\ASU\Semester 10\HPC\Project\HighPassFilter - OpenMP\Debug\HPC_ProjectTemplate.exe

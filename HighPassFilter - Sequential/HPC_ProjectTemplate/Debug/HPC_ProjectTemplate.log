@@ -1,0 +1,4 @@
+﻿  Source.cpp
+E:\ASU\Semester 10\HPC\Project\HighPassFilter - Sequential\HPC_ProjectTemplate\Source.cpp(155,66): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
+  Source.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+  HPC_ProjectTemplate.vcxproj -> E:\ASU\Semester 10\HPC\Project\HighPassFilter - Sequential\Debug\HPC_ProjectTemplate.exe

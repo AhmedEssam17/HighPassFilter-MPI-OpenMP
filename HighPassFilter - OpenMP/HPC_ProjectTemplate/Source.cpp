@@ -80,14 +80,36 @@ void createImage(int* image, int width, int height, int index)
 }
 
 
-void OpenMp() {
-	int start_s = 0;
-	int stop_s = 0;
-	int TotalTime = 0;
+/**================================================================
+ * @Fn				-OpenMP
+ * @brief 			-Reads Input Images, distributed rows among available threads,
+ *                   Apply HighPassFilter Algorithm, then gather all results and save
+ *                   the Output Image.
+ * @param [in]	 	-NONE
+ * @retval 			-NONE
+ * Note				-To run this application just run project using Ctrl + F5
+					 Input Images are defined in a char pointer array located in
+					 "..//Data//Input//" path, saved output images are located in
+					 "..//Data//Output//" path.
+ */
+int main()
+{
+	//-----------------------------------------------
+	//1) Initialize timer variables
+	//-----------------------------------------------
+	int start_s, stop_s, TotalTime = 0;
+
+	//-----------------------------------------------
+	//2) Set num of Threads to 8
+	//-----------------------------------------------
 	int nthreads = 8;
 	int tid;
 
-	char* image[7] = {
+	//-----------------------------------------------
+	//3) Input Images to be read and processed
+	//-----------------------------------------------
+	char* image[7] =
+	{
 		"..//Data//Input//1.png",
 		"..//Data//Input//2.jpg",
 		"..//Data//Input//3.png",
@@ -97,34 +119,61 @@ void OpenMp() {
 		"..//Data//Input//7.png",
 	};
 
-	int kernel[3][3] = { {0, -1, 0}, {-1, 4, -1}, {0, -1, 0} };
+	//-----------------------------------------------
+	//4) Loop for 7 different Input Images
+	//-----------------------------------------------
+	for (int i = 1; i < 8; i++) {
 
-	for (int i = 0; i < 7; i++) {
 		int imageWidth, imageHeight;
-		int* imageData = nullptr;
 
+		//---------------------------------------------------
+		//5) Input an Image and store its data in imageData
+		//---------------------------------------------------
+		int* imageData = nullptr;
 		System::String^ imagePath;
-		std::string img = image[i];
+		std::string img = image[i - 1];
 		imagePath = marshal_as<System::String^>(img);
 		imageData = inputImage(&imageWidth, &imageHeight, imagePath);
 
+		start_s = clock();
+
 		int* filteredImage = new int[imageWidth * imageHeight];
 
-		// Parallel processing
+		//------------------------------------------------------------
+		//6) Start Parallel Processing
+		//------------------------------------------------------------
 #pragma omp parallel private(tid) shared(imageData, filteredImage) num_threads(nthreads)
 		{
+
+			//------------------------------------------------------------
+			//7) Get thread id for each thread
+			//------------------------------------------------------------
 			tid = omp_get_thread_num();
 
+			//------------------------------------------------------------
+			//8) Calculate the size of each sub-image accross imageHeight
+			//------------------------------------------------------------
 			int processRow = imageHeight / nthreads;
 			int remainder = imageHeight % nthreads;
 			int localHeight = processRow;
 
+			//------------------------------------------------------------
+			//9) Add the remainder height to last Process
+			//------------------------------------------------------------
 			if (tid == nthreads - 1)
 				localHeight += remainder - 2;
 
+			//------------------------------------------------------------
+			//10) Adjust start and end boundaries for each process
+			//------------------------------------------------------------
 			int start = tid * processRow + 1;
 			int end = start + localHeight;
 
+			//------------------------------------------------------------
+			//11) Apply HighPassFilter Algorithm to each processData 
+			//	  and store filtered data in filteredImage
+			//------------------------------------------------------------
+			int kernel[3][3] = { {0, -1, 0}, {-1, 4, -1}, {0, -1, 0} };
 			for (int y = start; y < end; y++) {
 				for (int x = 1; x < imageWidth - 1; x++) {
 					int sum = 0;
@@ -141,20 +190,21 @@ void OpenMp() {
 				}
 			}
 		}
-		createImage(filteredImage, imageWidth, imageHeight, i);
 
+		//------------------------------------------------------------
+		//12) Save the Output Image & Calculate total time
+		//------------------------------------------------------------
 		stop_s = clock();
 		TotalTime += (stop_s - start_s) / double(CLOCKS_PER_SEC) * 1000;
+		createImage(filteredImage, imageWidth, imageHeight, i);
 		cout << "Time: " << TotalTime << endl;
 
+		//------------------------------------------------------------
+		//13) Free image-related allocated memory
+		//------------------------------------------------------------
 		delete[] imageData;
 		delete[] filteredImage;
-	}	
-}
-
-int main()
-{
-	OpenMp();
+	}
 
 	return 0;
 
